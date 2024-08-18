@@ -1,0 +1,29 @@
+Disease:
+Age:30
+Sex: Male
+Chest pain type: 0
+Resting Blood Pressure: 120
+Serum Cholesterol in mg: 200
+Fasting Blood Sugar: Yes
+Resting Electrocardiographic Results : 0
+Maximum Heart Rate Achieved: 150
+Exercise Induced Angina : Yes
+ST depression Induced by Exercise: 0
+Slope of the peak exercise st segment: 0
+Number of major vessels colored by ..... : 0
+thalassemia : 1
+
+non-Disease:
+Age:30
+Sex: Male
+Chest pain type: 0
+Resting Blood Pressure: 120
+Serum Cholesterol in mg: 295
+Fasting Blood Sugar: Yes
+Resting Electrocardiographic Results : 0
+Maximum Heart Rate Achieved: 131
+Exercise Induced Angina : Yes
+ST depression Induced by Exercise: 3.60
+Slope of the peak exercise st segment: 0
+Number of major vessels colored by ..... : 0
+thalassemia : 1

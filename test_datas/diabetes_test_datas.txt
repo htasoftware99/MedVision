@@ -1,0 +1,20 @@
+non-disease:
+number of pregnancies : 8
+glucose level : 57
+Blood plessure : 83
+skin thickness : 29
+Insulin level : 473
+BMI : 33.47
+Diabetes Pedigree function : 1.52
+Age : 49
+
+
+disease:
+number of pregnancies : 6
+glucose level : 120
+Blood plessure : 139
+skin thickness : 11
+Insulin level : 596
+BMI : 63.11
+Diabetes Pedigree function : 1.67
+Age : 63
