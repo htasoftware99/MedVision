@@ -26,10 +26,10 @@ def main():
             ],
             icons=[
                 "bi bi-radioactive",  # Brain icon
-                "bi bi-house-heart",  # Heart icon
+                "bi bi-file-earmark-break",  # Heart icon
                 "bi bi-chat",  # Chat icon
-                "bi bi-x-diamond",  # X-ray icon
-                "bi bi-file-earmark-medical",  # Medical file icon
+                "bi bi-lungs",  # X-ray icon
+                "bi bi-bandaid",  # Medical file icon
                 "bi bi-heart-pulse",
                 "bi bi-virus"
             ],

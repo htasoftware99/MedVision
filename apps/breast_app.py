@@ -1,20 +1,37 @@
 import streamlit as st
 import pickle
 import numpy as np
+import json
+import requests
 
-# Load the trained model and scaler
+# Ollama API üzerinden gemma modeline istek gönderme
+def get_gemma_explanation(prompt):
+    try:
+        ollama_endpoint = "http://localhost:11434/api/generate"
+        payload = json.dumps({"model": "gemma:2b", "prompt": prompt, "stream": False})
+        response = requests.post(ollama_endpoint, data=payload)
+        response.raise_for_status()
+        return response.json().get("response", "No response from Ollama.")
+    except requests.exceptions.RequestException as e:
+        return f"Error contacting Ollama API: {str(e)}"
+
+# Eğitimli model ve scaler'ı yükleme
 model = pickle.load(open("models/breast_cancer.pkl", "rb"))
 scaler = pickle.load(open("models/breast_cancer_scaler.pkl", "rb"))
 
-# Function to make predictions
+# Tahmin fonksiyonu
 def predict_diagnosis(features):
     features_scaled = scaler.transform([features])
     prediction = model.predict(features_scaled)
     return "Malignant (M)" if prediction[0] == 1 else "Benign (B)"
 
+# Ana uygulama fonksiyonu
 def app():
     st.title("Breast Cancer Prediction Web App")
     st.write("Enter the features to get a prediction.")
+
+    # ELI5 seçeneği
+    eli5_mode = st.checkbox("Explain like I'm 5 (ELI5)")
 
     with st.form("breast_cancer_form"):
         texture_mean = st.number_input("Texture Mean", min_value=0.0, format="%.6f")
@@ -52,11 +69,25 @@ def app():
 
     if submitted:
         diagnosis = predict_diagnosis(features)
+        
+        # Sonuca göre açıklama oluşturma
         if diagnosis == "Malignant (M)":
-            st.error("Unfortunately, you have malignant.")
+            st.error("Result: Malignant (M)")
+            if eli5_mode:
+                prompt = "The diagnosis is malignant. Please explain like I'm 5 years old."
+            else:
+                prompt = "The diagnosis is malignant. Please provide a detailed explanation."
         else:
-            st.success("Do not worry, you are healthy.")
+            st.success("Result: Benign (B)")
+            if eli5_mode:
+                prompt = "The diagnosis is benign. Please explain like I'm 5 years old."
+            else:
+                prompt = "The diagnosis is benign. Please provide a detailed explanation."
 
-# Run the app
+        # Gemma modelinden açıklama al
+        explanation = get_gemma_explanation(prompt)
+        st.write(explanation)
+
+# Uygulamayı çalıştır
 if __name__ == "__main__":
     app()

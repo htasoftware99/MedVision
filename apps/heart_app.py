@@ -1,12 +1,28 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import json
+import requests
 from sklearn.preprocessing import StandardScaler
+
+# Ollama API üzerinden gemma modeline istek gönderme
+def get_gemma_explanation(prompt):
+    try:
+        ollama_endpoint = "http://localhost:11434/api/generate"
+        payload = json.dumps({"model": "gemma:2b", "prompt": prompt, "stream": False})
+        response = requests.post(ollama_endpoint, data=payload)
+        response.raise_for_status()
+        return response.json().get("response", "No response from Ollama.")
+    except requests.exceptions.RequestException as e:
+        return f"Error contacting Ollama API: {str(e)}"
 
 # Define the function for the Streamlit app
 def app():
     # Set the title of the app
     st.title('Heart Disease Prediction App')
+
+    # ELI5 seçeneği ekleyin
+    eli5_mode = st.checkbox("Explain like I'm 5 (ELI5)")
 
     # Load the model and scaler
     model = pickle.load(open("models/heart_disease.pkl", "rb"))
@@ -63,11 +79,23 @@ def app():
         # Make a prediction
         prediction = model.predict(user_input_scaled)
 
-        # Display the result
+        # Display the result and prepare explanation prompt
         if prediction[0] == 1:
             st.error("Result: There is a risk of heart disease.")
+            if eli5_mode:
+                prompt = "The prediction indicates a risk of heart disease. Please explain like I'm 5."
+            else:
+                prompt = "The prediction indicates a risk of heart disease. Please provide a detailed explanation."
         else:
             st.success("Result: No risk of heart disease.")
+            if eli5_mode:
+                prompt = "No risk of heart disease detected. Please explain like I'm 5."
+            else:
+                prompt = "No risk of heart disease detected. Please provide a detailed explanation."
+
+        # Get explanation from Gemma model
+        explanation = get_gemma_explanation(prompt)
+        st.write(explanation)
 
 # Call the function to run the app
 if __name__ == "__main__":

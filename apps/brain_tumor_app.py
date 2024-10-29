@@ -2,6 +2,19 @@ import streamlit as st
 import tensorflow as tf
 from PIL import Image
 import numpy as np
+import json
+import requests
+
+# Ollama API üzerinden gemma modeline istek gönderme
+def get_gemma_explanation(prompt):
+    try:
+        ollama_endpoint = "http://localhost:11434/api/generate"
+        payload = json.dumps({"model": "gemma:2b", "prompt": prompt, "stream": False})
+        response = requests.post(ollama_endpoint, data=payload)
+        response.raise_for_status()
+        return response.json().get("response", "No response from Ollama.")
+    except requests.exceptions.RequestException as e:
+        return f"Error contacting Ollama API: {str(e)}"
 
 def app():
     # Modeli yükle
@@ -36,6 +49,9 @@ def app():
     # Streamlit uygulaması
     st.title("MRI Brain Tumor Detection")
 
+    # ELI5 seçeneği
+    eli5_mode = st.checkbox("Explain like I'm 5 (ELI5)")
+
     # Dosya yükleyici
     uploaded_file = st.file_uploader("Upload a MRI Image", type=["jpg", "jpeg", "png"])
 
@@ -58,6 +74,16 @@ def app():
         if predicted_class == 'No Tumor':
             display_class = 'Tumor does not exist'
             st.success(f"Result: **{display_class}**")
+            prompt = "The diagnosis is 'No Tumor'. Please explain like I'm 5 years old." if eli5_mode else "The diagnosis is 'No Tumor'. Please provide a detailed explanation."
         else:
             display_class = 'Tumor exists'
             st.error(f"Result: **{display_class}**")
+            prompt = f"The diagnosis is '{predicted_class}'. Please explain like I'm 5 years old." if eli5_mode else f"The diagnosis is '{predicted_class}'. Please provide a detailed explanation."
+
+        # Gemma modelinden açıklama al
+        explanation = get_gemma_explanation(prompt)
+        st.write(explanation)
+
+# Uygulamayı çalıştır
+if __name__ == "__main__":
+    app()
